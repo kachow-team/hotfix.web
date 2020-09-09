@@ -8,24 +8,35 @@ import './place.css';
 
 
 const Place = ({ item, order, onIncrementPosition, onDecrementPosition, area }) => {
-  const price = useMemo(() => {
+  const [price, products] = useMemo(() => {
     const foodIds = new Set((item.foods || []).map(item => item.id));
 
-    const result = Object.values(order)
-      .filter((value) => {
-        const { item: { id }} = value;
+    const products = Object.values(order)
+        .filter((value) => {
+            const {item: {id}} = value;
 
-        return foodIds.has(id);
-      })
-      .reduce((result, value) => {
-        const { count, item: { price }} = value;
+            return foodIds.has(id);
+          });
 
-        return result + parseInt(price) * parseInt(count);
+      const result = products.reduce((result, value) => {
+          const {count, item} = value;
+
+          return result + parseInt(item.price) * parseInt(count);
       }, 0);
 
-    return accounting.formatNumber(result, 0, ' ');
+    return [accounting.formatNumber(result, 0, ' '), products];
   }, [ order, item ]);
 
+    const placeOrderLink = (
+        <Link to={`/basket/${area.id}/${item.id}`} className="Place__order">
+            Оформить заказ ({price})
+        </Link>
+    );
+    const disabledPlaceOrderLink = (
+        <Link to='#' className="Place__order" style={{backgroundColor:'rgba(51,49,50,0.45)'}}>
+            Оформить заказ ({price})
+        </Link>
+    );
   return (
     <div className="Place">
       <header className="Place__header">
@@ -101,9 +112,7 @@ const Place = ({ item, order, onIncrementPosition, onDecrementPosition, area }) 
         )))}
       </ul>
       <footer className="Place__footer">
-        <Link to={`/basket/${area.id}/${item.id}`} className="Place__order">
-          Оформить заказ ({price})
-        </Link>
+          {products.length > 0? placeOrderLink : disabledPlaceOrderLink}
       </footer>
     </div>
   );
