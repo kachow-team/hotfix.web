@@ -1,4 +1,4 @@
-import React, {useMemo, useState} from 'react';
+import React, {useMemo} from 'react';
 import {withRouter, Link} from 'react-router-dom';
 import accounting from 'accounting';
 
@@ -8,10 +8,14 @@ import edit from '../img/edit.svg';
 import './place.css';
 
 
-const Basket = ({match: {params: {areaId, itemId}}, foodAreas, order}) => {
-    const [faster, setFaster] = useState(true);
-    const [time, setTime] = useState('');
-    const [selfService, setSelfService] = useState(false);
+const Basket = ({match: {params: {areaId, itemId}}, foodAreas, order, savedOrderParams, changeSavedOrderParams}) => {
+
+    const setFaster = (update) => {changeSavedOrderParams({...savedOrderParams, faster: update})};
+    const setTime = (update) => {changeSavedOrderParams({...savedOrderParams, time: update})};
+    const setSelfService = (update) => {changeSavedOrderParams({...savedOrderParams, selfService: update})};
+
+    const setTimeAndFaster = (update) => {changeSavedOrderParams({...savedOrderParams, time: update.time, faster: update.faster})};
+
     const area = foodAreas.filter(area => area.id === areaId)[0];
     const item = area.items.filter(item => item.id === itemId)[0];
 
@@ -118,13 +122,18 @@ const Basket = ({match: {params: {areaId, itemId}}, foodAreas, order}) => {
                 <div className="Place__choice-item">
                     <span>Как можно быстрее</span>
                     <Checkbox
-                        checked={faster}
+                        checked={savedOrderParams.faster}
                         onToggle={() => {
-                            if (faster) {
-                                setFaster(false);
+                            if (savedOrderParams.faster) {
+                                setTimeAndFaster({
+                                    time : new Date().toLocaleTimeString('en-US', { hour12: false }).slice(0,5),
+                                    faster: false
+                                })
                             } else {
-                                setTime('');
-                                setFaster(true);
+                                setTimeAndFaster({
+                                    time : '',
+                                    faster:true
+                                })
                             }
                         }}
                     />
@@ -132,7 +141,7 @@ const Basket = ({match: {params: {areaId, itemId}}, foodAreas, order}) => {
                 <div className="Place__choice-item">
                     <span>Назначить</span>
                     <input type="time"
-                        value={time}
+                        value={savedOrderParams.time}
                         onFocus={() => {
                             setFaster(false);
                         }}
@@ -141,7 +150,7 @@ const Basket = ({match: {params: {areaId, itemId}}, foodAreas, order}) => {
                             setTime(event.target.value);
                         }}
                         onBlur={() => {
-                            if (time) {
+                            if (savedOrderParams.time) {
                                 setFaster(false);
                             }
                         }}
@@ -149,11 +158,11 @@ const Basket = ({match: {params: {areaId, itemId}}, foodAreas, order}) => {
                 </div>
                 <div className="Place__choice-item">
                     <h3>С собой</h3>
-                    <Checkbox checked={selfService} onToggle={() => setSelfService(!selfService)}/>
+                    <Checkbox checked={savedOrderParams.selfService} onToggle={() => setSelfService(!savedOrderParams.selfService)}/>
                 </div>
                 <div className="Place__choice-item">
                     <h3>На месте</h3>
-                    <Checkbox checked={!selfService} onToggle={() => setSelfService(!setSelfService)}/>
+                    <Checkbox checked={!savedOrderParams.selfService} onToggle={() => setSelfService(!savedOrderParams.selfService)}/>
                 </div>
             </div>
             <footer className="Place__footer">

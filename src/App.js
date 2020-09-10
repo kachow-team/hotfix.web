@@ -128,6 +128,12 @@ const App = () => {
 	const [ orderStatuses, setOrderStatuses ] = useState(JSON.parse((localStorage.getItem('orderStatuses') || 'null')) || {});
 	const [ order, setOrder ] = useState(JSON.parse((localStorage.getItem('orders') || 'null')) || {});
 
+	const [ savedOrderParams, changeSavedOrderParams ] = useState({
+		"faster": true,
+		"time": '',
+		"selfService": false
+	});
+
 	return (
 		<Router>
 			<Switch>
@@ -152,6 +158,8 @@ const App = () => {
 					<Basket
 						foodAreas={FOOD_AREAS}
 						order={order}
+						savedOrderParams={savedOrderParams}
+						changeSavedOrderParams={changeSavedOrderParams}
 					/>
 				</Route>
 				<Route
@@ -165,7 +173,7 @@ const App = () => {
 						setCancelledOrder={({ itemId }) => {
 							const nextStatuses = {...orderStatuses};
 
-							nextStatuses[itemId] = 'CANCELLED';
+							nextStatuses[itemId] = 'CANCELED';
 
 							setOrderStatuses(nextStatuses);
 							localStorage.setItem('orderStatuses', JSON.stringify(nextStatuses));
@@ -275,6 +283,6 @@ const App = () => {
 			</Switch>
 		</Router>
 	);
-}
+};
 
 export default App;
