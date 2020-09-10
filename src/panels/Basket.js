@@ -143,7 +143,12 @@ const Basket = ({match: {params: {areaId, itemId}}, foodAreas, order, savedOrder
                     <input type="time"
                         value={savedOrderParams.time}
                         onFocus={() => {
-                            setFaster(false);
+                            if (savedOrderParams.faster) {
+                                setTimeAndFaster({
+                                    time: new Date().toLocaleTimeString('en-US', {hour12: false}).slice(0, 5),
+                                    faster: false
+                                })
+                            }
                         }}
                         onChange={event => {
                             setFaster(false);
